@@ -1,15 +1,27 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --color-light: #f3eeff;
+  --color-accent: #5d24f1;
+  --color-medium: #bba0ff;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  scrollbar-width: 0;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+button {
+  cursor: pointer;
+  user-select: none;
 }
 
 @media (prefers-color-scheme: dark) {
