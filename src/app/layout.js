@@ -2,8 +2,7 @@ import { Inter_Tight } from 'next/font/google'
 import './globals.css'
 import Image from 'next/image'
 import Link from 'next/link'
-import FilterButton from '@/components/FilterButton'
-import { supabase } from '@/supabase/supabase-client'
+import { Analytics } from '@vercel/analytics/next'
 
 const interTightSans = Inter_Tight({
   variable: '--font-inter',
@@ -16,7 +15,6 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }) {
-  
   return (
     <html lang="en">
       <body
@@ -34,11 +32,10 @@ export default function RootLayout({ children }) {
               />
             </div>
           </Link>
-
-          
         </div>
 
         {children}
+        <Analytics />
       </body>
     </html>
   )
