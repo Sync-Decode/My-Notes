@@ -1,22 +1,28 @@
 'use client'
 import { useNotes } from '@/store/store'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { IoArrowBackOutline } from 'react-icons/io5'
-import Link from 'next/link'
+import { supabase } from '@/supabase/supabase-client'
 
 const NewNote = () => {
   const { addNote } = useNotes()
   const [title, setTitle] = useState('')
   const [note, setNote] = useState('')
   const [isSaved, setIsSaved] = useState(false)
+  const { email, fetchEmail } = useNotes()
+
+  useEffect(() => {
+    fetchEmail()
+  }, [])
+
   const router = useRouter()
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!title.trim() || !note.trim()) return
-    addNote({ title, note })
+    addNote({ title, note, email })
 
     setIsSaved(true)
     setTimeout(() => {

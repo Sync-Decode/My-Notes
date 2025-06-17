@@ -1,15 +1,18 @@
-import { useNotes } from '@/store/store'
-import { useEffect, useState } from 'react'
+'use client'
+import { useFilter, useNotes } from '@/store/store'
+import { useState } from 'react'
+
 const FilterButton = ({ text, handleClick }) => {
-  const { isTodaySelected, setIsTodaySelected, fetchNotes } = useNotes()
+  const { isTodaySelected, fetchNotes } = useNotes()
+  const { setIsTodaySelected } = useFilter()
   const [isSelected, setIsSelected] = useState(false)
   const bgColor = isSelected ? '#5d24f1' : 'rgba(0,0,0,0)'
   return (
     <div
       onClick={() => {
         if (text.toLowerCase() === 'today') {
-          const nextState = !isTodaySelected
-          setIsTodaySelected(nextState)
+          setIsTodaySelected((prev) => !prev)
+          const nextState = isTodaySelected
           if (nextState) {
             fetchNotes()
           }

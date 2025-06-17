@@ -1,24 +1,20 @@
 import { create } from 'zustand'
 import { supabase } from '@/supabase/supabase-client'
 
-export const useNotes = create((set) => ({
-  notes: [],
+export const useAuthStore = create((set) => ({
+  signUpEmail: '',
+  setSignUpEmail: (value) => {
+    set(() => ({
+      signUpEmail: value,
+    }))
+  },
+}))
+
+export const useFilter = create((set) => ({
   isTodaySelected: false,
+
   setIsTodaySelected: () =>
     set((state) => ({ isTodaySelected: !state.isTodaySelected })),
-
-  fetchNotes: async () => {
-    const { data, error } = await supabase
-      .from('notes')
-      .select('*')
-      .order('created_at', { ascending: false })
-
-    if (error) {
-      console.error('Could not fetch notes', error.message)
-    } else {
-      set({ notes: data })
-    }
-  },
 
   filterToday: async (isTodaySelected) => {
     const today = new Date().toISOString().split('T')[0]
@@ -34,11 +30,36 @@ export const useNotes = create((set) => ({
       if (error) console.error('Could not fetch filtered notes', error.message)
     }
   },
+}))
 
-  addNote: async ({ title, note }) => {
+export const useNotes = create((set) => ({
+  notes: [],
+  email: '',
+
+  fetchNotes: async () => {
+    const { data, error } = await supabase
+      .from('notes')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Could not fetch notes', error.message)
+    } else {
+      set({ notes: data })
+    }
+  },
+
+  fetchEmail: async () => {
+    const { data, error } = await supabase.auth.getSession()
+    const e_mail = data.session.user.email
+    set({ email: e_mail })
+    if (error) console.error('Error', error.message)
+  },
+
+  addNote: async ({ title, note, email }) => {
     const { error } = await supabase
       .from('notes')
-      .insert({ title: title, note: note })
+      .insert({ title: title, note: note, email: email })
 
     if (error) console.error('Could not add the note', error.message)
   },

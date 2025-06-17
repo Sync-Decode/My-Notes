@@ -2,6 +2,8 @@ import { Inter_Tight } from 'next/font/google'
 import './globals.css'
 import Image from 'next/image'
 import Link from 'next/link'
+import FilterButton from '@/components/FilterButton'
+import { supabase } from '@/supabase/supabase-client'
 
 const interTightSans = Inter_Tight({
   variable: '--font-inter',
@@ -14,22 +16,27 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }) {
+  
   return (
     <html lang="en">
       <body
-        className={`${interTightSans.variable}  antialiased p-5 mx-auto gap-3`}
+        className={`${interTightSans.variable}  antialiased relative w-full min-h-screen max-w-3xl flex flex-col  px-5 mx-auto gap-3`}
       >
-        <Link href="/">
-          <div className="w-20 aspect-square px-0 mx-6 ">
-            <Image
-              width={32}
-              height={32}
-              src="/notes_logo.png"
-              alt="logo"
-              className="w-full h-full object-cover"
-            />
-          </div>
-        </Link>
+        <div>
+          <Link href="/">
+            <div className="w-20 aspect-square px-0 mx-6 ">
+              <Image
+                width={32}
+                height={32}
+                src="/notes_logo.png"
+                alt="logo"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </Link>
+
+          
+        </div>
 
         {children}
       </body>

@@ -1,3 +1,2 @@
-export const supabaseAPIKey =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoeW5qb3ZmeXBtcnJid2Vpdmh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk5Njc5NzgsImV4cCI6MjA2NTU0Mzk3OH0.5fHBUIcIAKBiAfVAF89wmPGsHh5GQ_6Hjk1q5sk_q_g'
-export const supabaseURL = "https://khynjovfypmrrbweivhx.supabase.co"
+export const supabaseAPIKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+export const supabaseURL = process.env.NEXT_PUBLIC_SUPABASE_URL

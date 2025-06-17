@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/supabase/supabase-client'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { RiDeleteBin6Line } from 'react-icons/ri'
 import { IoArrowBackOutline } from 'react-icons/io5'
 
@@ -12,6 +12,7 @@ const EditedNote = () => {
   const [note, setNote] = useState('')
   const [isSaved, setIsSaved] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [unAuthorisedDelete, setUnAuthorisedDelete] = useState(false)
   const { id } = useParams()
 
   const router = useRouter()
@@ -23,7 +24,7 @@ const EditedNote = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!title.trim() || !note.trim()) return
+    if (!title.trim() && !note.trim()) return
     updateNote(id, { title, note })
     setIsSaved(true)
     setTimeout(() => {
@@ -40,11 +41,20 @@ const EditedNote = () => {
   }
 
   const handleDelete = async (id) => {
-    const { error } = await supabase.from('notes').delete().eq('id', id)
+    const { data, error } = await supabase
+      .from('notes')
+      .delete()
+      .eq('id', id)
+      .select()
     setConfirmDelete(false)
-    if (error) console.error('could not delete note', error.message)
-    else {
-      router.push('/newnote')
+    console.log(data)
+    if (error) {
+      console.error('could not delete note', error.message)
+    } else if (!data.length === 0) {
+      router.replace('/newnote')
+    } else {
+      router.refresh()
+      setUnAuthorisedDelete(true)
     }
   }
 
@@ -81,13 +91,13 @@ const EditedNote = () => {
       >
         Saved!
       </motion.div>
-      <div className='flex justify-between'>
+      <div className="flex justify-between">
         <div
           onClick={back}
           className="flex justify-start items-center px-5 gap-2 cursor-pointer select-none"
         >
           <IoArrowBackOutline />
-          <p className='text-sm font-bold text-[#f3eeff7c]'>back</p>
+          <p className="text-sm font-bold text-[#f3eeff7c]">back</p>
         </div>
         <h1 className="text-[#f3eeff7c] text-right text-xl leading-12 font-bold p-5">
           Edit Note
@@ -149,34 +159,68 @@ const EditedNote = () => {
         </div>
       </div>
 
-      <motion.div
-        variants={{
-          initial: { x: '-100%', opacity: 0 },
-          animate: { x: 0, opacity: 1 },
-        }}
-        initial="initial"
-        animate={confirmDelete ? 'animate' : 'initial'}
-        transition={{ duration: 0.5, type: 'tween', ease: 'easeIn' }}
-        className="absolute top-1/2 left-1/2 -translate-1/2 w-4/5 mx-auto h-[25vh] flex flex-col justify-center items-center backdrop-blur-3xl"
-      >
-        <div className="flex justify-between items-center px-4 gap-30">
-          <button
-            type="button"
-            onClick={() => setConfirmDelete(false)}
-            className="px-8 py-2 bg-[#5d24f1] rounded-sm"
+      <AnimatePresence>
+        {confirmDelete && (
+          <motion.div
+            variants={{
+              initial: { x: '100%', opacity: 0 },
+              animate: { x: 0, opacity: 1 },
+              exit: { x: '-100%', opacity: 0 },
+            }}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.5, type: 'tween', ease: 'easeIn' }}
+            className="absolute top-1/2 left-1/2 -translate-1/2 w-4/5 mx-auto h-[25vh] flex flex-col justify-center items-center backdrop-blur-3xl"
           >
-            Cancel
-          </button>
+            <div className="flex justify-between items-center px-4 gap-30">
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                className="px-8 py-2 bg-[#5d24f1] rounded-sm"
+              >
+                Cancel
+              </button>
 
-          <button
-            type="button"
-            onClick={() => handleDelete(id)}
-            className="px-8 py-2 bg-[#5d24f1] rounded-sm"
+              <button
+                type="button"
+                onClick={() => handleDelete(id)}
+                className="px-8 py-2 bg-[#5d24f1] rounded-sm"
+              >
+                Delete
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {unAuthorisedDelete && (
+          <motion.div
+            variants={{
+              initial: { x: '100%', opacity: 0 },
+              animate: { x: 0, opacity: 1 },
+              exit: { x: '-100%', opacity: 0 },
+            }}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.5, type: 'tween', ease: 'easeIn' }}
+            className="absolute top-1/2 left-1/2 -translate-1/2 w-4/5 mx-auto h-[25vh] flex flex-col gap-4 justify-center items-center backdrop-blur-3xl"
           >
-            Delete
-          </button>
-        </div>
-      </motion.div>
+            <h3>Cannot delete other user's notes</h3>
+            <div className="flex justify-between items-center px-4 gap-30">
+              <button
+                type="button"
+                onClick={() => setUnAuthorisedDelete(false)}
+                className="px-8 py-2 bg-[#5d24f1] rounded-sm"
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

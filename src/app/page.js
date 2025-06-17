@@ -1,25 +1,63 @@
 'use client'
 import Note from '@/components/Note'
 import Link from 'next/link'
-import Image from 'next/image'
 import { useNotes } from '@/store/store'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import FilterButton from '@/components/FilterButton'
 import { supabase } from '@/supabase/supabase-client'
+import { useRouter } from 'next/navigation'
+import Loading from '@/components/Loading'
+import { useFilter } from '@/store/store'
 
 const Home = () => {
-  const { notes, fetchNotes, filterToday, isTodaySelected } = useNotes()
+  const router = useRouter()
+  // Check if user is authenticated
+  const [session, setSession] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const { notes, fetchNotes } = useNotes()
+
   useEffect(() => {
-    filterAll()
+    const fetchSession = async () => {
+      setIsLoading(true)
+      const { data } = await supabase.auth.getSession()
+      const currentSession = data.session
+
+      if (!currentSession) {
+        router.replace('/signin')
+        return
+      }
+
+      setIsLoading(false)
+      setSession(currentSession)
+      filterAll()
+      console.log(data)
+    }
+
+    fetchSession()
   }, [])
 
   const filterAll = () => {
     fetchNotes()
   }
 
-  return (
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error('could not sign you out', error.message)
+    }
+    router.replace('/signin')
+  }
+
+  //filters
+  const { isTodaySelected, setIsTodaySelected, filterToday } = useFilter()
+
+  return isLoading ? (
+    <Loading />
+  ) : (
     <div className="w-full min-h-screen max-w-3xl flex flex-col  px-5 mx-auto gap-3 ">
-      
+      <div onClick={handleSignOut} className="cursor-pointer">
+        <p className="text-right text-sm text-bold">sign out</p>
+      </div>
       <h1 className="text-[#f3eeffdc] text-left text-5xl leading-[1.1] font-bold px-5 select-none">
         My <br />
         Notes
